@@ -1,0 +1,11 @@
+package components
+
+templ Typography(tag string, label string) {
+	if tag == "header" {
+		<h1 class="text-6xl font-bold italic font-signika bg-gradient-to-b from-fuchsia-600 to-purple-900 bg-clip-text text-transparent p-2">{ label }</h1>
+	} else if tag == "link" {
+		<h2><a class="text-white text-5xl font-signika" href="">{ label }</a></h2>
+	} else {
+		<p class="text-white text-5xl font-signika">{ label }</p>
+	}
+}

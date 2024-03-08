@@ -1,0 +1,13 @@
+package components
+
+import "github.com/hossokawa/go-todo-app/model"
+
+templ TaskList(tasks []*model.Task) {
+	<section id="task-list" class="w-full flex flex-col justify-center items-center max-w-screen-sm pb-16">
+		<div class="w-full grid gap-4">
+			for _, task := range tasks {
+				@Task(model.Task{Id: task.Id, Name: task.Name, Completed: task.Completed})
+			}
+		</div>
+	</section>
+}

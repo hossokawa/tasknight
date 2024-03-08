@@ -1,0 +1,9 @@
+package components
+
+templ Btn(variant string, label string, className string) {
+	if variant == "button" {
+		<button type="button" class={ "w-auto text-white text-2xl bg-violet-500 px-8 rounded-r-lg hover:bg-violet-700 transition-colors ease-in-out" + className }>{ label }</button>
+	} else if variant == "submit" {
+		<button type="submit" class={ "text-white text-2xl transition-colors ease-in-out" + className }>{ label }</button>
+	}
+}
