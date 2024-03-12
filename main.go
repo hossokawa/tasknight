@@ -60,8 +60,11 @@ func main() {
 	app.GET("/", func(c echo.Context) error {
 		component := view.Index(tasks)
 		return component.Render(context.Background(), c.Response().Writer)
-		// component := view.TaskEdit(*tasks[0])
-		// return component.Render(context.Background(), c.Response().Writer)
+	})
+
+	app.GET("/register", func(c echo.Context) error {
+		component := view.Register()
+		return component.Render(context.Background(), c.Response().Writer)
 	})
 
 	app.GET("/tasks/:id", func(c echo.Context) error {

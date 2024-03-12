@@ -25,20 +25,20 @@ func TaskEdit(task *model.Task) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"edit-div\" class=\"h-full w-full pt-64 flex flex-col items-center\"><form class=\"bg-cement m-auto p-10 border-2 border-zinc-700 w-[40vw]\"><h4 class=\"text-white text-3xl text-center mb-8\">Edit task</h4><div class=\"grid grid-cols-2 mb-3\"><label class=\"text-white text-2xl mb-0\">Task ID</label><p class=\"text-white text-2xl ml-[-6rem]\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(task.Id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/edit.templ`, Line: 11, Col: 56}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/edit.templ`, Line: 10, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></div><div class=\"grid grid-cols-2 mb-3\"><label for=\"name\" class=\"text-white text-2xl mb-0\">Task name</label> <input type=\"text\" name=\"name\" autocomplete=\"off\" class=\"bg-cement w-auto text-white text-xl px-3 py-2 border-2 border-zinc-700 rounded-lg focus:outline-none focus:border-zinc-500 ml-[-6rem]\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -46,22 +46,22 @@ func TaskEdit(task *model.Task) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div><div class=\"grid grid-cols-2 mb-3\"><label for=\"completed\" class=\"text-white text-2xl mb-0\">Completed</label> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if task.Completed {
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input type=\"checkbox\" name=\"completed\" class=\"w-5 h-5 ml-[-6rem]\" checked>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 5)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input type=\"checkbox\" name=\"completed\" class=\"w-5 h-5 ml-[-6rem]\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 6)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><span class=\"flex flex-row justify-center items-center\"><button type=\"submit\" hx-patch=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -69,7 +69,7 @@ func TaskEdit(task *model.Task) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 7)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"\" hx-target=\"#edit-div\" hx-swap=\"outerHTML\" class=\"text-white text-2xl bg-violet-500 w-full py-1 mt-4 rounded-lg hover:bg-violet-700 transition-colors ease-in-out\">Edit</button></span></form><button type=\"button\" hx-get=\"/\" hx-trigger=\"click\" hx-target=\"#edit-div\" hx-swap=\"outerHTML\" class=\"text-white text-2xl bg-[#4B0C55] w-1/4 py-1 mt-12 rounded-lg hover:bg-[#5C1068] transition-colors ease-in-out\">Back to home</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

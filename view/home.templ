@@ -13,20 +13,22 @@ templ Index(tasks []*model.Task) {
 			<script src="../static/htmx.min.js"></script>
 			<script src="https://unpkg.com/htmx.org/dist/ext/multi-swap.js"></script>
 		</head>
-		<body class="bg-cement">
-			<div class="w-full flex flex-row gap-2 justify-end pr-4">
-				<h3 class="text-white text-lg hover:text-violet-500"><a href="/login">Login</a></h3>
-				<h3 class="text-white text-lg">|</h3>
-				<h3 class="text-white text-lg hover:text-violet-500"><a href="/register">Register</a></h3>
-			</div>
-			<div id="home-div" class="h-full w-full flex flex-col items-center pt-16">
-				@components.Typography("header", "Tasknight")
-				<div class="w-full flex flex-row justify-center max-w-screen-sm pt-6 pb-10">
-					<form class="w-full flex flex-row justify-center">
-						@components.Input()
-					</form>
+		<body id="home-body" class="bg-cement">
+			<div id="home-div" class="h-full w-full">
+				<div class="w-full flex flex-row gap-2 justify-end pr-4">
+					<h3 class="text-white text-lg hover:text-violet-500 hover:cursor-pointer"><a href="" hx-get="/login">Login</a></h3>
+					<h3 class="text-white text-lg">|</h3>
+					<h3 hx-get="/register" hx-trigger="click" hx-target="#home-div" hx-swap="outerHTML" class="text-white text-lg hover:text-violet-500 hover:cursor-pointer">Register</h3>
 				</div>
-				@components.TaskList(tasks)
+				<div class="h-full w-full flex flex-col items-center pt-16">
+					@components.Typography("header", "Tasknight")
+					<div class="w-full flex flex-row justify-center max-w-screen-sm pt-6 pb-10">
+						<form class="w-full flex flex-row justify-center">
+							@components.Input()
+						</form>
+					</div>
+					@components.TaskList(tasks)
+				</div>
 			</div>
 		</body>
 	</html>
