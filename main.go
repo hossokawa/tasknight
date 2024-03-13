@@ -67,6 +67,11 @@ func main() {
 		return component.Render(context.Background(), c.Response().Writer)
 	})
 
+	app.GET("/login", func(c echo.Context) error {
+		component := view.Login()
+		return component.Render(context.Background(), c.Response().Writer)
+	})
+
 	app.GET("/tasks/:id", func(c echo.Context) error {
 		id := c.Param("id")
 		if id == "" {
