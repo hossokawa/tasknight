@@ -1007,14 +1007,6 @@ video {
   opacity: 0.5;
 }
 
-.peer:empty ~ .peer-empty\:pointer-events-none {
-  pointer-events: none;
-}
-
-.peer:empty ~ .peer-empty\:opacity-50 {
-  opacity: 0.5;
-}
-
 .peer:not(:-moz-placeholder-shown):not(:focus):invalid ~ .peer-\[\&\:not\(\:-moz-placeholder-shown\)\:not\(\:focus\)\:invalid\]\:visible {
   visibility: visible;
 }

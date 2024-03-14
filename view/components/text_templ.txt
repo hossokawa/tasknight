@@ -1,6 +1,0 @@
-<h1 class=\"text-6xl font-bold italic font-signika bg-gradient-to-b from-fuchsia-600 to-purple-900 bg-clip-text text-transparent p-2\">
-</h1>
-<h2><a class=\"text-white text-5xl font-signika\" href=\"\">
-</a></h2>
-<p class=\"text-white text-5xl font-signika\">
-</p>

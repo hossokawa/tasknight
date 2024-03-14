@@ -26,7 +26,7 @@ func Index(tasks []model.Task) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Tasknight</title><link href=\"static/css/output.css\" rel=\"stylesheet\"><script src=\"../static/htmx.min.js\"></script><script src=\"https://unpkg.com/htmx.org/dist/ext/multi-swap.js\"></script></head><body class=\"bg-cement\"><div id=\"home-div\" class=\"h-full w-full\"><div class=\"w-full flex flex-row gap-2 justify-end pr-4\"><h3 hx-get=\"/login\" hx-trigger=\"click\" hx-target=\"#home-div\" hx-swap=\"outerHTML\" class=\"text-white text-lg hover:text-violet-500 hover:cursor-pointer\">Login</h3><h3 class=\"text-white text-lg\">|</h3><h3 hx-get=\"/register\" hx-trigger=\"click\" hx-target=\"#home-div\" hx-swap=\"outerHTML\" class=\"text-white text-lg hover:text-violet-500 hover:cursor-pointer\">Register</h3></div><div class=\"h-full w-full flex flex-col items-center pt-16\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -34,7 +34,7 @@ func Index(tasks []model.Task) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full flex flex-row justify-center max-w-screen-sm pt-6 pb-10\"><form class=\"w-full flex flex-row justify-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -42,7 +42,7 @@ func Index(tasks []model.Task) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,7 +50,7 @@ func Index(tasks []model.Task) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
