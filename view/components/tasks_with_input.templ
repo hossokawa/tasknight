@@ -2,7 +2,7 @@ package components
 
 import "github.com/hossokawa/go-todo-app/model"
 
-templ TasksWithInput(tasks []*model.Task) {
+templ TasksWithInput(tasks []model.Task) {
 	@TaskList(tasks)
 	@Input()
 }

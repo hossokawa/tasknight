@@ -991,6 +991,30 @@ video {
   opacity: 0.3;
 }
 
+.peer:-moz-placeholder-shown ~ .peer-placeholder-shown\:pointer-events-none {
+  pointer-events: none;
+}
+
+.peer:placeholder-shown ~ .peer-placeholder-shown\:pointer-events-none {
+  pointer-events: none;
+}
+
+.peer:-moz-placeholder-shown ~ .peer-placeholder-shown\:opacity-50 {
+  opacity: 0.5;
+}
+
+.peer:placeholder-shown ~ .peer-placeholder-shown\:opacity-50 {
+  opacity: 0.5;
+}
+
+.peer:empty ~ .peer-empty\:pointer-events-none {
+  pointer-events: none;
+}
+
+.peer:empty ~ .peer-empty\:opacity-50 {
+  opacity: 0.5;
+}
+
 .peer:not(:-moz-placeholder-shown):not(:focus):invalid ~ .peer-\[\&\:not\(\:-moz-placeholder-shown\)\:not\(\:focus\)\:invalid\]\:visible {
   visibility: visible;
 }

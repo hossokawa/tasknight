@@ -2,7 +2,8 @@ package db
 
 import (
 	"context"
-	"log"
+	"errors"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -11,19 +12,34 @@ import (
 )
 
 var client *mongo.Client
+var db *mongo.Database
 
-func Init(uri string, db *mongo.Client) error {
+func Init() error {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return errors.New("Error loading .env file")
 	}
-	uri = os.Getenv("MONGO_URI")
+
+	uri := os.Getenv("MONGO_URI")
 	if uri == "" {
-		log.Fatal("Mongo URI not set in .env")
+		return errors.New("MONGO_URI not set in .env")
 	}
-	db, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(uri).SetServerAPIOptions(options.ServerAPI(options.ServerAPIVersion1)))
+
+	client, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(uri).SetServerAPIOptions(options.ServerAPI(options.ServerAPIVersion1)))
 	if err != nil {
 		return err
 	}
+
+	db = client.Database("Tasknight")
+
+	fmt.Println("Connected to db")
 	return nil
+}
+
+func Close() error {
+	return db.Client().Disconnect(context.Background())
+}
+
+func GetCollection(coll string) *mongo.Collection {
+	return db.Collection(coll)
 }
