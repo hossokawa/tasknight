@@ -1,14 +1,12 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/hossokawa/go-todo-app/internal/db"
 	"github.com/hossokawa/go-todo-app/internal/handlers"
-	"github.com/hossokawa/go-todo-app/view"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -26,24 +24,6 @@ func main() {
 	}
 	defer db.Close()
 
-	// tasks := []model.Task{
-	// 	{
-	// 		Id:        uuid.NewString(),
-	// 		Name:      "Code todo app",
-	// 		Completed: true,
-	// 	},
-	// 	{
-	// 		Id:        uuid.NewString(),
-	// 		Name:      "Go gym",
-	// 		Completed: false,
-	// 	},
-	// 	{
-	// 		Id:        uuid.NewString(),
-	// 		Name:      "Walk the dog",
-	// 		Completed: true,
-	// 	},
-	// }
-
 	app := echo.New()
 
 	//Middleware
@@ -58,23 +38,18 @@ func main() {
 	}))
 	app.Use(middleware.Recover())
 	app.Use(middleware.CORS())
+	app.Static("/static", "static")
 
 	// Routes
-	app.GET("/register", func(c echo.Context) error {
-		component := view.Register()
-		return component.Render(context.Background(), c.Response().Writer)
-	})
-	app.GET("/login", func(c echo.Context) error {
-		component := view.Login()
-		return component.Render(context.Background(), c.Response().Writer)
-	})
+	app.GET("/register", handlers.GetRegisterScreen)
+	app.POST("/register", handlers.RegisterUser)
+	app.GET("/login", handlers.GetLoginScreen)
+	app.POST("/login", handlers.LoginUser)
 	app.GET("/", handlers.GetTasks)
 	app.GET("/tasks/:id", handlers.GetTask)
 	app.POST("/tasks", handlers.CreateTask)
 	app.DELETE("/tasks/:id", handlers.DeleteTask)
 	app.PATCH("/tasks/:id", handlers.UpdateTask)
-
-	app.Static("/static", "static")
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -38,6 +38,10 @@ templ Register() {
 			</div>
 			<button
 				type="submit"
+				hx-post="/register"
+				hx-trigger="click"
+				hx-target="#register-div"
+				hx-swap="outerHTML"
 				class="text-white text-2xl bg-violet-500 w-3/4 py-1 mt-4 rounded-lg hover:bg-violet-700 transition-colors ease-in-out group-invalid:pointer-events-none group-invalid:opacity-30"
 			>Register</button>
 		</form>

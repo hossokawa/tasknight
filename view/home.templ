@@ -3,7 +3,7 @@ package view
 import "github.com/hossokawa/go-todo-app/view/components"
 import "github.com/hossokawa/go-todo-app/model"
 
-templ Index(tasks []model.Task) {
+templ Index(tasks []model.Task, isLoggedIn bool) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -16,21 +16,25 @@ templ Index(tasks []model.Task) {
 		<body class="bg-cement">
 			<div id="home-div" class="h-full w-full">
 				<div class="w-full flex flex-row gap-2 justify-end pr-4">
-					<h3
-						hx-get="/login"
-						hx-trigger="click"
-						hx-target="#home-div"
-						hx-swap="outerHTML"
-						class="text-white text-lg hover:text-violet-500 hover:cursor-pointer"
-					>Login</h3>
-					<h3 class="text-white text-lg">|</h3>
-					<h3
-						hx-get="/register"
-						hx-trigger="click"
-						hx-target="#home-div"
-						hx-swap="outerHTML"
-						class="text-white text-lg hover:text-violet-500 hover:cursor-pointer"
-					>Register</h3>
+					if !isLoggedIn {
+						<h3
+							hx-get="/login"
+							hx-trigger="click"
+							hx-target="#home-div"
+							hx-swap="outerHTML"
+							class="text-white text-lg hover:text-violet-500 hover:cursor-pointer"
+						>Login</h3>
+						<h3 class="text-white text-lg">|</h3>
+						<h3
+							hx-get="/register"
+							hx-trigger="click"
+							hx-target="#home-div"
+							hx-swap="outerHTML"
+							class="text-white text-lg hover:text-violet-500 hover:cursor-pointer"
+						>Register</h3>
+					} else {
+						<h3 class="text-white text-lg">Welcome Knight!</h3>
+					}
 				</div>
 				<div class="h-full w-full flex flex-col items-center pt-16">
 					@components.Typography("header", "Tasknight")

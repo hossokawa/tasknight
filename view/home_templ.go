@@ -13,7 +13,7 @@ import "bytes"
 import "github.com/hossokawa/go-todo-app/view/components"
 import "github.com/hossokawa/go-todo-app/model"
 
-func Index(tasks []model.Task) templ.Component {
+func Index(tasks []model.Task, isLoggedIn bool) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -26,7 +26,22 @@ func Index(tasks []model.Task) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Tasknight</title><link href=\"static/css/output.css\" rel=\"stylesheet\"><script src=\"../static/htmx.min.js\"></script><script src=\"https://unpkg.com/htmx.org/dist/ext/multi-swap.js\"></script></head><body class=\"bg-cement\"><div id=\"home-div\" class=\"h-full w-full\"><div class=\"w-full flex flex-row gap-2 justify-end pr-4\"><h3 hx-get=\"/login\" hx-trigger=\"click\" hx-target=\"#home-div\" hx-swap=\"outerHTML\" class=\"text-white text-lg hover:text-violet-500 hover:cursor-pointer\">Login</h3><h3 class=\"text-white text-lg\">|</h3><h3 hx-get=\"/register\" hx-trigger=\"click\" hx-target=\"#home-div\" hx-swap=\"outerHTML\" class=\"text-white text-lg hover:text-violet-500 hover:cursor-pointer\">Register</h3></div><div class=\"h-full w-full flex flex-col items-center pt-16\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Tasknight</title><link href=\"static/css/output.css\" rel=\"stylesheet\"><script src=\"../static/htmx.min.js\"></script><script src=\"https://unpkg.com/htmx.org/dist/ext/multi-swap.js\"></script></head><body class=\"bg-cement\"><div id=\"home-div\" class=\"h-full w-full\"><div class=\"w-full flex flex-row gap-2 justify-end pr-4\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !isLoggedIn {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h3 hx-get=\"/login\" hx-trigger=\"click\" hx-target=\"#home-div\" hx-swap=\"outerHTML\" class=\"text-white text-lg hover:text-violet-500 hover:cursor-pointer\">Login</h3><h3 class=\"text-white text-lg\">|</h3><h3 hx-get=\"/register\" hx-trigger=\"click\" hx-target=\"#home-div\" hx-swap=\"outerHTML\" class=\"text-white text-lg hover:text-violet-500 hover:cursor-pointer\">Register</h3>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h3 class=\"text-white text-lg\">Welcome Knight!</h3>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"h-full w-full flex flex-col items-center pt-16\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

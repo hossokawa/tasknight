@@ -34,7 +34,7 @@ func GetTasks(c echo.Context) error {
 		tasks = append(tasks, task)
 	}
 
-	component := view.Index(tasks)
+	component := view.Index(tasks, false)
 	return component.Render(context.Background(), c.Response().Writer)
 }
 
