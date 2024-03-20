@@ -41,13 +41,13 @@ func main() {
 	app.Static("/static", "static")
 
 	// Routes
+	app.GET("/", handlers.Home)
 	app.GET("/register", handlers.GetRegisterScreen)
-	app.POST("/register", handlers.RegisterUser)
 	app.GET("/login", handlers.GetLoginScreen)
-	app.POST("/login", handlers.LoginUser)
-	app.GET("/", handlers.GetTasks)
 	app.GET("/tasks/:id", handlers.GetTask)
-	app.POST("/tasks", handlers.CreateTask)
+	app.POST("/", handlers.CreateTask)
+	app.POST("/register", handlers.RegisterUser)
+	app.POST("/login", handlers.LoginUser)
 	app.DELETE("/tasks/:id", handlers.DeleteTask)
 	app.PATCH("/tasks/:id", handlers.UpdateTask)
 

@@ -4,7 +4,10 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/hossokawa/go-todo-app/internal/db"
 	"github.com/hossokawa/go-todo-app/model"
 	"github.com/hossokawa/go-todo-app/view"
@@ -76,7 +79,15 @@ func LoginUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid password")
 	}
 
-	tasks, err := refreshTasks()
+	token, err := generateJWT(dbUser.ID, dbUser.Email)
+	if err != nil {
+		log.Println(err)
+		return c.String(http.StatusInternalServerError, "Something went wrong, try again later")
+	}
+
+	log.Println(token)
+
+	tasks, err := fetchTasks()
 
 	component := view.Index(tasks, true)
 	return component.Render(context.Background(), c.Response().Writer)
@@ -89,4 +100,19 @@ func getHash(pwd []byte) string {
 	}
 
 	return string(hash)
+}
+
+func generateJWT(id string, email string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":    id,
+		"email": email,
+		"exp":   time.Now().Add(time.Hour * 24 * 30).Unix(),
+	})
+
+	tokenStr, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to create token")
+	}
+
+	return tokenStr, nil
 }

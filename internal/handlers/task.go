@@ -14,24 +14,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func GetTasks(c echo.Context) error {
-	coll := db.GetCollection("tasks")
-
-	// find all tasks
-	tasks := make([]model.Task, 0)
-	cursor, err := coll.Find(context.TODO(), bson.M{})
+func Home(c echo.Context) error {
+	tasks, err := fetchTasks()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
-	}
-
-	for cursor.Next(context.TODO()) {
-		task := model.Task{}
-		err := cursor.Decode(&task)
-		if err != nil {
-
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
-		}
-		tasks = append(tasks, task)
 	}
 
 	component := view.Index(tasks, false)
@@ -39,22 +25,14 @@ func GetTasks(c echo.Context) error {
 }
 
 func GetTask(c echo.Context) error {
-	coll := db.GetCollection("tasks")
-
 	id := c.Param("id")
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Id cannot be empty")
 	}
-	objectId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
-	}
 
-	task := model.Task{}
-
-	err = coll.FindOne(context.TODO(), bson.M{"_id": objectId}).Decode(&task)
+	task, err := fetchTask(id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve task")
 	}
 
 	component := view.TaskEdit(&task)
@@ -76,13 +54,12 @@ func CreateTask(c echo.Context) error {
 		Completed: false,
 	}
 
-	coll := db.GetCollection("tasks")
-	_, err := coll.InsertOne(context.TODO(), t)
+	err := createTask(t)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return err
 	}
 
-	tasks, err := refreshTasks()
+	tasks, err := fetchTasks()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error refreshing tasks")
 	}
@@ -92,15 +69,9 @@ func CreateTask(c echo.Context) error {
 }
 
 func UpdateTask(c echo.Context) error {
-	coll := db.GetCollection("tasks")
-
 	id := c.Param("id")
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Id cannot be empty")
-	}
-	objectId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
 	}
 
 	updatedName := c.FormValue("name")
@@ -114,12 +85,9 @@ func UpdateTask(c echo.Context) error {
 		updatedStatus = false
 	}
 
-	_ = coll.FindOneAndUpdate(context.TODO(), bson.D{{"_id", objectId}}, bson.D{{"$set", bson.D{{"name", updatedName}}}, {"$set", bson.D{{"completed", updatedStatus}}}})
-
-	task := model.Task{}
-	err = coll.FindOne(context.TODO(), bson.M{"_id": objectId}).Decode(&task)
+	task, err := updateTask(id, updatedName, updatedStatus)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return err
 	}
 
 	component := view.TaskEdit(&task)
@@ -127,20 +95,17 @@ func UpdateTask(c echo.Context) error {
 }
 
 func DeleteTask(c echo.Context) error {
-	coll := db.GetCollection("tasks")
-
 	id := c.Param("id")
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Id cannot be empty")
 	}
-	objectId, err := primitive.ObjectIDFromHex(id)
+
+	err := deleteTask(id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
+		return err
 	}
 
-	_ = coll.FindOneAndDelete(context.TODO(), bson.M{"_id": objectId})
-
-	tasks, err := refreshTasks()
+	tasks, err := fetchTasks()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error fetching tasks")
 	}
@@ -149,7 +114,7 @@ func DeleteTask(c echo.Context) error {
 	return component.Render(context.Background(), c.Response().Writer)
 }
 
-func refreshTasks() ([]model.Task, error) {
+func fetchTasks() ([]model.Task, error) {
 	coll := db.GetCollection("tasks")
 
 	tasks := make([]model.Task, 0)
@@ -170,11 +135,61 @@ func refreshTasks() ([]model.Task, error) {
 	return tasks, nil
 }
 
-func findById(tasks []model.Task, id string) (task *model.Task) {
-	for _, task := range tasks {
-		if task.Id == id {
-			return &task
-		}
+func fetchTask(id string) (model.Task, error) {
+	coll := db.GetCollection("tasks")
+
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return model.Task{}, echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
 	}
+	task := model.Task{}
+
+	err = coll.FindOne(context.TODO(), bson.M{"_id": objectId}).Decode(&task)
+	if err != nil {
+		return model.Task{}, echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return task, nil
+}
+
+func createTask(t taskDTO) error {
+	coll := db.GetCollection("tasks")
+	_, err := coll.InsertOne(context.TODO(), t)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return nil
+}
+
+func updateTask(id string, name string, completed bool) (model.Task, error) {
+	coll := db.GetCollection("tasks")
+
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return model.Task{}, echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
+	}
+
+	_ = coll.FindOneAndUpdate(context.TODO(), bson.D{{Key: "_id", Value: objectId}}, bson.D{{Key: "$set", Value: bson.D{{Key: "name", Value: name}}}, {Key: "$set", Value: bson.D{{Key: "completed", Value: completed}}}})
+
+	task := model.Task{}
+	err = coll.FindOne(context.TODO(), bson.M{"_id": objectId}).Decode(&task)
+	if err != nil {
+		return model.Task{}, echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return task, nil
+}
+
+func deleteTask(id string) error {
+	coll := db.GetCollection("tasks")
+
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
+	}
+
+	_ = coll.FindOneAndDelete(context.TODO(), bson.M{"_id": objectId})
+
 	return nil
 }
