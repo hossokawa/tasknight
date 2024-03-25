@@ -20,11 +20,21 @@ func Home(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
+	cookie, err := c.Cookie("access_token")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	if cookie == nil {
+		return echo.ErrCookieNotFound
+	}
+
+	// tokenStr := cookie.Value
+
 	component := view.Index(tasks, false)
 	return component.Render(context.Background(), c.Response().Writer)
 }
 
-func GetTask(c echo.Context) error {
+func EditTask(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Id cannot be empty")

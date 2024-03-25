@@ -26,7 +26,7 @@ func Index(tasks []model.Task, isLoggedIn bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Tasknight</title><link href=\"static/css/output.css\" rel=\"stylesheet\"><script src=\"../static/htmx.min.js\"></script><script src=\"https://unpkg.com/htmx.org/dist/ext/multi-swap.js\"></script></head><body class=\"bg-cement\"><div id=\"home-div\" class=\"h-full w-full\"><div class=\"w-full flex flex-row gap-2 justify-end pr-4\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Tasknight</title><link href=\"static/css/output.css\" rel=\"stylesheet\"><script src=\"../static/htmx.min.js\"></script><script src=\"https://unpkg.com/htmx.org/dist/ext/multi-swap.js\"></script><script src=\"https://unpkg.com/htmx.org@1.9.11/dist/ext/response-targets.js\"></script></head><body class=\"bg-cement\"><div id=\"home-div\" class=\"h-full w-full\"><div class=\"w-full flex flex-row gap-2 justify-end pr-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

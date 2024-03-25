@@ -4,13 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/hossokawa/go-todo-app/internal/auth"
 	"github.com/hossokawa/go-todo-app/internal/db"
 	"github.com/hossokawa/go-todo-app/model"
 	"github.com/hossokawa/go-todo-app/view"
+	"github.com/hossokawa/go-todo-app/view/components"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,11 +23,17 @@ func GetRegisterScreen(c echo.Context) error {
 	return component.Render(context.Background(), c.Response().Writer)
 }
 
+type userDTO struct {
+	Username string `bson:"username"`
+	Email    string `bson:"email"`
+	Password string `bson:"password"`
+}
+
 func RegisterUser(c echo.Context) error {
 	coll := db.GetCollection("users")
 
 	indexModel := mongo.IndexModel{
-		Keys:    bson.D{{Key: "email", Value: 1}},
+		Keys:    bson.D{{Key: "email", Value: 1}, {Key: "_id", Value: 1}},
 		Options: options.Index().SetUnique(true),
 	}
 	_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
@@ -35,11 +41,13 @@ func RegisterUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something went wrong")
 	}
 
+	username := c.FormValue("username")
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 	hashedPwd := getHash([]byte(password))
 
-	user := model.User{
+	user := userDTO{
+		Username: username,
 		Email:    email,
 		Password: hashedPwd,
 	}
@@ -49,8 +57,10 @@ func RegisterUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "The provided email is already registered")
 	}
 
-	component := view.Register()
-	return component.Render(context.Background(), c.Response().Writer)
+	c.Response().Header().Set("HX-Redirect", "/")
+	c.Response().WriteHeader(http.StatusOK)
+
+	return nil
 }
 
 func GetLoginScreen(c echo.Context) error {
@@ -76,21 +86,27 @@ func LoginUser(c echo.Context) error {
 	hashedPwd := []byte(dbUser.Password)
 	err = bcrypt.CompareHashAndPassword(hashedPwd, userPwd)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid password")
+		c.Response().WriteHeader(http.StatusUnauthorized)
+		component := components.ErrorMsg("Invalid email or password")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
-	token, err := generateJWT(dbUser.ID, dbUser.Email)
+	token, err := auth.GenerateJWT(dbUser.Id, dbUser.Email)
 	if err != nil {
-		log.Println(err)
-		return c.String(http.StatusInternalServerError, "Something went wrong, try again later")
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Something went wrong. Try again later.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
-	log.Println(token)
+	expiration := time.Now().Add(365 * 24 * time.Hour)
+	cookie := http.Cookie{Name: "access_token", Value: token, Expires: expiration, Path: "/"}
 
-	tasks, err := fetchTasks()
+	c.SetCookie(&cookie)
 
-	component := view.Index(tasks, true)
-	return component.Render(context.Background(), c.Response().Writer)
+	c.Response().Header().Set("HX-Redirect", "/")
+	c.Response().WriteHeader(http.StatusOK)
+
+	return nil
 }
 
 func getHash(pwd []byte) string {
@@ -100,19 +116,4 @@ func getHash(pwd []byte) string {
 	}
 
 	return string(hash)
-}
-
-func generateJWT(id string, email string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":    id,
-		"email": email,
-		"exp":   time.Now().Add(time.Hour * 24 * 30).Unix(),
-	})
-
-	tokenStr, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
-	if err != nil {
-		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to create token")
-	}
-
-	return tokenStr, nil
 }
