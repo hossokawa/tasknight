@@ -44,10 +44,10 @@ func main() {
 	app.GET("/", handlers.Home)
 	app.GET("/register", handlers.GetRegisterScreen)
 	app.GET("/login", handlers.GetLoginScreen)
-	app.GET("/tasks/:id", handlers.EditTask)
-	app.POST("/", handlers.CreateTask)
 	app.POST("/register", handlers.RegisterUser)
 	app.POST("/login", handlers.LoginUser)
+	app.POST("/", handlers.CreateTask)
+	app.GET("/tasks/:id", handlers.EditTask)
 	app.PATCH("/tasks/:id", handlers.UpdateTask)
 	app.DELETE("/tasks/:id", handlers.DeleteTask)
 

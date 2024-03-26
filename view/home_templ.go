@@ -11,7 +11,7 @@ import "io"
 import "bytes"
 
 import "github.com/hossokawa/go-todo-app/view/components"
-import "github.com/hossokawa/go-todo-app/model"
+import "github.com/hossokawa/go-todo-app/internal/models"
 
 func Index(tasks []model.Task, isLoggedIn bool) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {

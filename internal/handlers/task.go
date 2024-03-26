@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/hossokawa/go-todo-app/internal/db"
-	"github.com/hossokawa/go-todo-app/model"
+	"github.com/hossokawa/go-todo-app/internal/models"
 	"github.com/hossokawa/go-todo-app/view"
 	"github.com/hossokawa/go-todo-app/view/components"
 	"github.com/labstack/echo/v4"
