@@ -13,6 +13,7 @@ import (
 	"github.com/hossokawa/go-todo-app/view/components"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
@@ -79,7 +80,9 @@ func LoginUser(c echo.Context) error {
 
 	err := coll.FindOne(context.TODO(), bson.M{"email": user.Email}).Decode(&dbUser)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Something went wrong. Try again later.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	userPwd := []byte(user.Password)
@@ -91,15 +94,15 @@ func LoginUser(c echo.Context) error {
 		return component.Render(context.Background(), c.Response().Writer)
 	}
 
-	token, err := auth.GenerateJWT(dbUser.Id, dbUser.Email)
+	token, err := auth.GenerateJWT(dbUser.Id, dbUser.Username, dbUser.Email)
 	if err != nil {
 		c.Response().WriteHeader(http.StatusInternalServerError)
-		component := components.ErrorMsg("Something went wrong. Try again later.")
+		component := components.ErrorMsg("Error generating JWT. Try again later.")
 		return component.Render(context.Background(), c.Response().Writer)
 	}
 
-	expiration := time.Now().Add(365 * 24 * time.Hour)
-	cookie := http.Cookie{Name: "access_token", Value: token, Expires: expiration, Path: "/"}
+	expiration := time.Now().Add(30 * 24 * time.Hour)
+	cookie := http.Cookie{Name: "jwt", Value: token, Expires: expiration, Path: "/", HttpOnly: true, Secure: true, SameSite: http.SameSiteStrictMode}
 
 	c.SetCookie(&cookie)
 
@@ -116,4 +119,21 @@ func getHash(pwd []byte) string {
 	}
 
 	return string(hash)
+}
+
+func GetUser(id string) (model.User, error) {
+	coll := db.GetCollection("users")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return model.User{}, echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
+	}
+	user := model.User{}
+
+	err = coll.FindOne(context.TODO(), bson.M{"_id": objectId}).Decode(&user)
+	if err != nil {
+		return model.User{}, echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return user, nil
+
 }

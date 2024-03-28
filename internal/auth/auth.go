@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -13,14 +14,14 @@ type Claims struct {
 	Id       string
 	Username string
 	Email    string
-	jwt.RegisteredClaims
 }
 
-func GenerateJWT(id string, email string) (string, error) {
+func GenerateJWT(id string, username string, email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":    id,
-		"email": email,
-		"exp":   time.Now().Add(time.Hour * 24 * 30).Unix(),
+		"sub":      id,
+		"username": username,
+		"email":    email,
+		"exp":      time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
 
 	tokenStr, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -31,6 +32,13 @@ func GenerateJWT(id string, email string) (string, error) {
 	return tokenStr, nil
 }
 
-func GetUserId(tokenStr string) string {
-	return ""
+func ValidateJWT(tokenStr string) (*jwt.Token, error) {
+	secret := os.Getenv("JWT_SECRET")
+
+	return jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
 }

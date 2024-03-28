@@ -8,6 +8,7 @@ import (
 	"github.com/hossokawa/go-todo-app/internal/db"
 	"github.com/hossokawa/go-todo-app/internal/handlers"
 	"github.com/joho/godotenv"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -40,16 +41,22 @@ func main() {
 	app.Use(middleware.CORS())
 	app.Static("/static", "static")
 
+	jwtconfig := echojwt.Config{
+		SigningMethod: "HS256",
+		SigningKey:    []byte(os.Getenv("JWT_SECRET")),
+		TokenLookup:   "cookie:jwt",
+	}
+
 	// Routes
 	app.GET("/", handlers.Home)
 	app.GET("/register", handlers.GetRegisterScreen)
 	app.GET("/login", handlers.GetLoginScreen)
 	app.POST("/register", handlers.RegisterUser)
 	app.POST("/login", handlers.LoginUser)
-	app.POST("/", handlers.CreateTask)
-	app.GET("/tasks/:id", handlers.EditTask)
-	app.PATCH("/tasks/:id", handlers.UpdateTask)
-	app.DELETE("/tasks/:id", handlers.DeleteTask)
+	app.POST("/", handlers.CreateTask, echojwt.WithConfig(jwtconfig))
+	app.GET("/tasks/:id", handlers.EditTask, echojwt.WithConfig(jwtconfig))
+	app.PATCH("/tasks/:id", handlers.UpdateTask, echojwt.WithConfig(jwtconfig))
+	app.DELETE("/tasks/:id", handlers.DeleteTask, echojwt.WithConfig(jwtconfig))
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/hossokawa/go-todo-app/internal/auth"
 	"github.com/hossokawa/go-todo-app/internal/db"
 	"github.com/hossokawa/go-todo-app/internal/models"
 	"github.com/hossokawa/go-todo-app/view"
@@ -20,15 +22,14 @@ func Home(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	cookie, err := c.Cookie("access_token")
+	userLoggedIn, err := checkLoginStatus(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	if cookie == nil {
-		return echo.ErrCookieNotFound
+	if userLoggedIn {
+		component := view.Index(tasks, true)
+		return component.Render(context.Background(), c.Response().Writer)
 	}
-
-	// tokenStr := cookie.Value
 
 	component := view.Index(tasks, false)
 	return component.Render(context.Background(), c.Response().Writer)
@@ -202,4 +203,29 @@ func deleteTask(id string) error {
 	_ = coll.FindOneAndDelete(context.TODO(), bson.M{"_id": objectId})
 
 	return nil
+}
+
+func checkLoginStatus(c echo.Context) (bool, error) {
+	cookie, err := c.Cookie("jwt")
+	if err != nil {
+		return false, echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	if cookie == nil {
+		return false, nil
+	}
+	token, err := auth.ValidateJWT(cookie.Value)
+	if err != nil {
+		return false, echo.NewHTTPError(http.StatusUnauthorized, "failed to authenticate token")
+	}
+	if !token.Valid {
+		return false, echo.NewHTTPError(http.StatusUnauthorized, "failed to authenticate token")
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userId := claims["sub"].(string)
+
+	_, err = GetUser(userId)
+	if err != nil {
+		return false, echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return true, nil
 }
