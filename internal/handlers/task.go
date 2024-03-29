@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -26,7 +25,9 @@ func Home(c echo.Context) error {
 		id := auth.GetUserId(c)
 		tasks, err = fetchUserTasks(id)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
+			c.Response().WriteHeader(http.StatusInternalServerError)
+			component := components.ErrorMsg("Failed to retrieve user tasks. Try again later.")
+			return component.Render(context.Background(), c.Response().Writer)
 		}
 		component := view.Index(tasks, true)
 		return component.Render(context.Background(), c.Response().Writer)
@@ -39,12 +40,16 @@ func Home(c echo.Context) error {
 func EditTask(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Id cannot be empty")
+		c.Response().WriteHeader(http.StatusBadRequest)
+		component := components.ErrorMsg("Id cannot be empty")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	task, err := fetchTask(id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve task")
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Failed to fetch requested task. Try again later.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	component := view.TaskEdit(&task)
@@ -68,12 +73,16 @@ func CreateTask(c echo.Context) error {
 
 	err := createTask(t)
 	if err != nil {
-		return err
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Error creating new task. Try again later.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	tasks, err := fetchUserTasks(userId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error refreshing tasks")
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Error refreshing user tasks. Try again later.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	component := components.TasksWithInput(tasks)
@@ -83,12 +92,16 @@ func CreateTask(c echo.Context) error {
 func UpdateTask(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Id cannot be empty")
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Id cannot be empty.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	updatedName := c.FormValue("name")
 	if updatedName == "" {
-		return errors.New("Task name cannot be empty")
+		c.Response().WriteHeader(http.StatusBadRequest)
+		component := components.ErrorMsg("Task name cannot be empty")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 	var updatedStatus bool
 	if c.FormValue("completed") == "on" {
@@ -99,7 +112,9 @@ func UpdateTask(c echo.Context) error {
 
 	task, err := updateTask(id, updatedName, updatedStatus)
 	if err != nil {
-		return err
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Error updating task. Try again later.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	component := view.TaskEdit(&task)
@@ -109,18 +124,24 @@ func UpdateTask(c echo.Context) error {
 func DeleteTask(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Id cannot be empty")
+		c.Response().WriteHeader(http.StatusBadRequest)
+		component := components.ErrorMsg("Id cannot be empty.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	err := deleteTask(id)
 	if err != nil {
-		return err
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Error deleting task. Try again later.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	userId := auth.GetUserId(c)
 	tasks, err := fetchUserTasks(userId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error fetching tasks")
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		component := components.ErrorMsg("Error refreshing user tasks. Try again later.")
+		return component.Render(context.Background(), c.Response().Writer)
 	}
 
 	component := components.TaskList(tasks)

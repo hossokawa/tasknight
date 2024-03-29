@@ -3,52 +3,34 @@ package view
 import "github.com/hossokawa/go-todo-app/internal/models"
 
 templ TaskEdit(task *model.Task) {
-	<div id="edit-div" class="h-full w-full pt-64 flex flex-col items-center">
-		<form class="bg-cement m-auto p-10 border-2 border-zinc-700 w-[40vw]">
-			<h4 class="text-white text-3xl text-center mb-8">Edit task</h4>
-			<div class="grid grid-cols-2 mb-3">
-				<label class="text-white text-2xl mb-0">Task ID</label>
-				<p class="text-white text-2xl ml-[-6rem]">{ task.Id }</p>
-			</div>
-			<div class="grid grid-cols-2 mb-3">
-				<label for="name" class="text-white text-2xl mb-0">Task name</label>
-				<input
-					type="text"
-					name="name"
-					autocomplete="off"
-					class="bg-cement w-auto text-white text-xl px-3 py-2 border-2 border-zinc-700 rounded-lg focus:outline-none focus:border-zinc-500 ml-[-6rem]"
-					value={ task.Name }
-				/>
-			</div>
-			<div class="grid grid-cols-2 mb-3">
-				<label for="completed" class="text-white text-2xl mb-0">Completed</label>
-				if task.Completed {
-					<input type="checkbox" name="completed" class="w-5 h-5 ml-[-6rem]" checked/>
-				} else {
-					<input type="checkbox" name="completed" class="w-5 h-5 ml-[-6rem]"/>
-				}
-			</div>
-			<span class="flex flex-row justify-center items-center">
-				<button
-					type="submit"
-					hx-patch={ "/tasks/" + task.Id }
-					hx-trigger=""
-					hx-target="#edit-div"
-					hx-swap="outerHTML"
-					class="text-white text-2xl bg-violet-500 w-full py-1 mt-4 rounded-lg hover:bg-violet-700 transition-colors ease-in-out"
-				>Edit</button>
-			</span>
-		</form>
-		<button
-			type="button"
-			hx-get="/"
-			hx-trigger="click"
-			hx-target="#edit-div"
-			hx-swap="outerHTML"
-			class="text-white text-2xl bg-[#4B0C55] w-1/4 py-1 mt-12 rounded-lg hover:bg-[#5C1068] transition-colors ease-in-out"
-		>
-			Back
-			to home
-		</button>
-	</div>
+<div id="edit-div" class="h-full w-full pt-64 flex flex-col items-center">
+  <form class="bg-cement m-auto p-10 border-2 border-zinc-700 w-[40vw]">
+    <h4 class="text-white text-3xl text-center mb-8">Edit task</h4>
+    <div class="grid grid-cols-2 items-center">
+      <label class="text-white text-2xl mb-3">Task ID</label>
+      <p class="text-white text-2xl ml-[-6rem] mb-3">{ task.Id }</p>
+      <label for="name" class="text-white text-2xl mb-3">Task name</label>
+      <input type="text" name="name" autocomplete="off"
+        class="bg-cement w-auto text-white text-xl px-3 py-2 border-2 border-zinc-700 rounded-lg focus:outline-none focus:border-zinc-500 ml-[-6rem] mb-3"
+        value={ task.Name } />
+      <label for="completed" class="text-white text-2xl mb-3">Completed</label>
+      if task.Completed {
+      <input type="checkbox" name="completed" class="w-5 h-5 ml-[-6rem] mb-3" checked />
+      } else {
+      <input type="checkbox" name="completed" class="w-5 h-5 ml-[-6rem] mb-3" />
+      }
+    </div>
+    <span class="flex flex-col justify-center items-center">
+      <div id="error-div"></div>
+      <button type="submit" hx-patch={ "/tasks/" + task.Id } hx-target="#edit-div" hx-target-error="#error-div"
+        hx-swap="outerHTML"
+        class="text-white text-2xl bg-violet-500 w-full py-1 mt-4 rounded-lg hover:bg-violet-700 transition-colors ease-in-out">Edit</button>
+    </span>
+  </form>
+  <button type="button" hx-get="/" hx-trigger="click" hx-target="#edit-div" hx-swap="outerHTML"
+    class="text-white text-2xl bg-[#4B0C55] w-1/4 py-1 mt-12 rounded-lg hover:bg-[#5C1068] transition-colors ease-in-out">
+    Back
+    to home
+  </button>
+</div>
 }
