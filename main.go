@@ -27,7 +27,7 @@ func main() {
 
 	app := echo.New()
 
-	//Middleware
+	// middleware
 	app.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus: true,
 		LogURI:    true,
@@ -47,7 +47,7 @@ func main() {
 		TokenLookup:   "cookie:jwt",
 	}
 
-	// Routes
+	// routes
 	app.GET("/", handlers.Home)
 	app.GET("/register", handlers.GetRegisterScreen)
 	app.GET("/login", handlers.GetLoginScreen)

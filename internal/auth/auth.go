@@ -42,3 +42,20 @@ func ValidateJWT(tokenStr string) (*jwt.Token, error) {
 		return []byte(secret), nil
 	})
 }
+
+func GetTokenFromCookie(c echo.Context) string {
+	cookie, err := c.Cookie("jwt")
+	if err != nil {
+		return err.Error()
+	}
+	tokenStr := cookie.Value
+	return tokenStr
+}
+
+func GetUserId(c echo.Context) string {
+	token := GetTokenFromCookie(c)
+	claims := jwt.MapClaims{}
+
+	jwt.ParseWithClaims(token, claims, nil)
+	return claims["sub"].(string)
+}

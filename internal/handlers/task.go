@@ -17,16 +17,17 @@ import (
 )
 
 func Home(c echo.Context) error {
-	tasks, err := fetchTasks()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
-	}
-
+	tasks := []model.Task{}
 	userLoggedIn, err := checkLoginStatus(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	if userLoggedIn {
+		id := auth.GetUserId(c)
+		tasks, err = fetchUserTasks(id)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
 		component := view.Index(tasks, true)
 		return component.Render(context.Background(), c.Response().Writer)
 	}
@@ -53,16 +54,16 @@ func EditTask(c echo.Context) error {
 type taskDTO struct {
 	Name      string `bson:"name" form:"name"`
 	Completed bool   `bson:"completed"`
+	CreatedBy string `bson:"createdBy"`
 }
 
 func CreateTask(c echo.Context) error {
-	if c.FormValue("name") == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Task name cannot be empty")
-	}
+	userId := auth.GetUserId(c)
 
 	t := taskDTO{
 		Name:      c.FormValue("name"),
 		Completed: false,
+		CreatedBy: userId,
 	}
 
 	err := createTask(t)
@@ -70,7 +71,7 @@ func CreateTask(c echo.Context) error {
 		return err
 	}
 
-	tasks, err := fetchTasks()
+	tasks, err := fetchUserTasks(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error refreshing tasks")
 	}
@@ -116,7 +117,8 @@ func DeleteTask(c echo.Context) error {
 		return err
 	}
 
-	tasks, err := fetchTasks()
+	userId := auth.GetUserId(c)
+	tasks, err := fetchUserTasks(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error fetching tasks")
 	}
@@ -130,6 +132,27 @@ func fetchTasks() ([]model.Task, error) {
 
 	tasks := make([]model.Task, 0)
 	cursor, err := coll.Find(context.TODO(), bson.M{})
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	for cursor.Next(context.TODO()) {
+		task := model.Task{}
+		err := cursor.Decode(&task)
+		if err != nil {
+			return nil, echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
+		tasks = append(tasks, task)
+	}
+
+	return tasks, nil
+}
+
+func fetchUserTasks(id string) ([]model.Task, error) {
+	coll := db.GetCollection("tasks")
+
+	tasks := make([]model.Task, 0)
+	cursor, err := coll.Find(context.TODO(), bson.M{"createdBy": id})
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
